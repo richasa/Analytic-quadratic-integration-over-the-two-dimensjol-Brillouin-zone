@@ -1,0 +1,165 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{subcaption}
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{fourier}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\author{Richard Saleem}
+\title{Analytic quadratic integration over the two-dimensional brillouion zone, G Wiesenekker, G te Velde and EJBaerends}
+
+\lstset{language=C++,
+	keywordstyle=\bfseries\color{blue},
+	commentstyle=\itshape\color{red},
+	stringstyle=\color{green},
+	identifierstyle=\bfseries,
+	frame=single}
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+
+
+
+\section{2D}
+\begin{equation}
+E(k_x , k_y) = \frac{\hbar^2}{2m} (k_x^2+k_y^2)
+\end{equation}
+The polar coordinate system  
+\begin{align}
+x = r cos(\theta)\\
+y = r sin (\theta)\\
+r = \sqrt{x^2 + y ^2}
+\end{align}
+\[
+Jacobian = 
+  \begin{vmatrix}
+   \frac{\partial x}{\partial r}  &  \frac{\partial u}{\partial r} \\
+   \frac{\partial x }{\partial \theta} & \frac{\partial y}{\partial \theta}
+  \end{vmatrix}
+ =    \begin{vmatrix}
+   cos(\theta)  &  Sin(\theta) \\
+   -rsin(\theta) & rcos(\theta)
+  \end{vmatrix}
+  = r\]
+\begin{align}
+r^2= (k_x^2+k_y^2) = \frac{2m E}{\hbar^2} \label{r^2}\\
+\frac{\partial E}{\partial r} = \frac{\partial \frac{\hbar^2}{2m} r^2 }{\partial r} = r \frac{\hbar^2}{m}\\
+dr = dE \frac{m}{\hbar^2 r}
+\end{align}
+\subsection{$f = 1$ case}
+and the main integral
+\begin{align}
+D(E) &= \int \delta(E-e(k))dk \\
+&= \int_0^1 \int_0^{2\pi}r\delta(E-e(k))d\theta dr\\
+&= \int 2\pi r \frac{m}{\hbar^2 r}\delta(E-e(k))dE\\ 
+&= \int \frac{m 2\pi}{\hbar ^2}\delta(E-e(k))dE & \textbf{where} \int f(E) \delta(E-e(k))dE  = f(e) \\
+&= \frac{2\pi m}{\hbar^2}
+\end{align}
+\subsection{$f = r^2$ case}
+the main integral
+\begin{align}
+D(E) &= \int r^2 \delta(E-e(k))dk \\
+&= \int_0^1 \int_0^{2\pi}r^3\delta(E-e(k))d\theta dr\\
+&= \int 2\pi r^3 \frac{m}{\hbar^2 r}\delta(E-e(k))dE\\ 
+&= \int \frac{r^2 m 2\pi}{\hbar ^2}\delta(E-e(k))dE & \textbf{where} \int f(E) \delta(E-e(k))dE  = f(e) \\
+&= \frac{r^2 2\pi m}{\hbar^2}\\
+&= \Big(\frac{2 m}{\hbar^2}\Big)^2 \pi E  & \ref{r^2}
+\end{align}
+\section{The limits on the u-integration of the goniometric equations}
+the parameters specifying the intersection of the surface energy and with the sides of the triangle \\
+$n_{jx}+n_{jy} = c_j $    ref(41)
+to introduce the triangle sides we use the the stander formula for a line function $y = mx + b$, where m is the slope and b is the y-intercept the value of y in $x =  0$. \\
+and the point slope:  $ (y-y_1) = m (x-x_1)$ where $(x_1,y_1)$ is a point in the given line.
+\begin{align}
+y-y_1 &= m (x-x_1)\\
+y-y_1 &= \frac{\partial y}{\partial x} (x-x_1) \\
+\partial x  (y-y_1) & = \partial y (x-x_1)\\ 
+\partial x y - \partial y x + \partial y x_1 - \partial x y_1 &= 0 \\
+n_{jx}x+n_{jy}y &= c_j & \text{where  } n_{jx} =  - \partial y, n_{jy}= \partial x , c = \partial x y_1 - \partial y x_1
+\end{align}
+
+\subsection{Ellipse}
+the ellipse requires the solution of the goniometric equation ref (42)
+\begin{align}
+n_{jx}\{(E-q_1)/q_4 \}^{1/2}cos(u) + n_{jy}\{(E-q_1)/q_6\} ^ {1/2} sin (u)&= c_j&\text{where  } (j = 1,2,3)\\ b cos (u) + a sin (u)  =  c_j \label{acosubsinuc}
+\end{align}
+\begin{align}
+ t = tan ( \frac{u}{2})\\
+ sin (u) = 2sin (\frac{u}{2})cos (\frac{u}{2}) = 2 \frac{sin( \frac{u}{2})}{cos (\frac{u}{2})}cos ^2 (\frac{u}{2}) = \frac{2 tan (\frac{u}{2})}{sec ^2 (\frac{u}{2})} = \frac{2t}{1+ t^2} \\
+ cos (u) = cos^2 (\frac{u}{2}) - sin^2 (\frac{u}{2}) = \Big[ 1- \frac{sin^2 (\frac{u}{2})}{cos^2 (\frac{u}{2})}\Big]cos^2 (\frac{u}{2}) = \frac{1- tan^2 (\frac{u}{2})}{sec^2 (\frac{u}{2})}  =\frac{1-t^2}{1+t^2}\\
+\end{align}
+\begin{align}
+a_j(\frac{2t}{1+t^2})+ b_j(\frac{1-t^2}{1+t^2}) &= c_j  &\ref{acosubsinuc}\\
+a_j2t + b_j(1-t^2) = c_j (1+t^2)\\
+(c_j+b_j)t^2 - a_j 2t +(c_j-b_j)= 0 \label{Quadratic equations}
+\end{align}
+solving the Quadratic equations $\ref{Quadratic equations}$ gives us
+\begin{align}
+t_j &= \frac{2a_j \pm \sqrt{{4a_j}^2-4(c_j-b_j)(b_j+c_j)}}{2(b_j+c_j)} \\
+u_j &= 2tan ^{-1} (t_j) & \textbf{for } (j = 1,2,3)
+\end{align}
+which give 2 solutions for each j:
+\begin{equation}
+u = u_1,u_2,u_3,u_4,u_5,u_6
+\end{equation}
+
+\subsection{Hyperbola}
+The hyperbola form need a solution for the quadratic equation: ref (43)
+\begin{align}
+n_{jx}u^2 -c_j u + n_{jy}\{(E-q_1)/q_5\} &= 0  &\text{where  } (j = 1,2,3)
+\end{align}
+\begin{align}
+a_j'u^2 + b_j'u + c_j' = 0
+\end{align}
+We can find the solution for $u$ by using the quadratic formula:
+\begin{align}
+u_j = \frac{-b_j ' \pm \sqrt{b_j '^2 - 4a_j'c_j'} }{2a_j'}
+\end{align}
+which give 2 solutions for each j:
+\begin{equation}
+u = u_1,u_2,u_3,u_4,u_5,u_6
+\end{equation}
+
+
+\subsection{Parabola}
+The Parabola form need a solution for the quadratic equation: ref (44)
+\begin{align}
+-n_{jy}(q_4 / q_3)u^2 + n_{jx}u + n_{jy} \{(E-q_1)/q3 \} - c_j &= 0  &\text{where  } (j = 1,2,3)
+\end{align}
+\begin{align}
+a_j'u^2 + b_j'u + c_j' = 0
+\end{align}
+We can find the solution for $u$ by using the quadratic formula:
+\begin{align}
+u_j = \frac{-b_j ' \pm \sqrt{b_j '^2 - 4a_j'c_j'} }{2a_j'}
+\end{align}
+which give 2 solutions for each j:
+\begin{equation}
+u = u_1,u_2,u_3,u_4,u_5,u_6
+\end{equation}
+
+\section{Checking if a point is inside a triangle}
+This simple check can tell us if the curve lies inside the triangle. The test give an existed point in the triangle area only if :
+
+ \begin{align}
+p(x,y) = c_0 + (c_1 - c_0) * s + (c_2 - c_0) * t
+\end{align}
+$c_0,c_1,c_2$ is the three corners of the triangle\\
+the point p is inside the triangle if and only if $ 0 <  S  < 1$ ,  $0 < t < 1 $  and $s+t< 1$.
+
+\section{What is next?}
+with this integration method we can get good but slow result but this will be enough to make a machine learning program which can calc much faster and better result with much lower k points. but first we need to a huge data set "learning set" .
+
+\end{document}
