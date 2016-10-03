@@ -11,20 +11,23 @@ miniX = -2
 maxX = 2
 miniY = -2
 maxY = 2
-Deltak = 0.1
+Deltak = 0.01
 
 #enter the function f here 
 def functionf (x,y):
-  f = (x**2) + y**2;
+  #f = (x**2) + y**2;
   #f = 1
+  f = 1+x+y+y**2 + y*x+x**2
   return f;
 
 #enter the function E here 
 def energyf (x,y):
-  #E = x**2 + y**2;
+  E = x**2 + y**2;
   #E = 2+ x*y
-  E = 2*y + x**2
-  #E = y**2
+  #E = 2*y + x**2
+  #E =  x**2
+  #E =  1 + 2*x
+  #E = 0.9 + x**2
   return E;
 
 

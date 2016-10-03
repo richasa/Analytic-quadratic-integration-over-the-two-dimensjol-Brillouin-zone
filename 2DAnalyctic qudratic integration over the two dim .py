@@ -16,16 +16,18 @@ Deltak = 0.1
 pi = 3.14159265359
 #enter the function f here 
 def functionf (x,y):
-  f = x**2 + y**2;
+  #f = x**2 + y**2;
+  f = 1+x+y+y**2 + y*x+x**2
   #f = 1
   return f;
 
 #enter the function E here 
 def energyf (x,y):
-  #E = x**2 + y**2;
+  E = x**2 + y**2;
   #E = 2+x*y;
-  E = 2*y + x**2
-  #E = y**2
+  #E = 2*y + x**2
+  #E = 1 + 2*x
+  #E = 0.9 + x**2
   return E;
 
 
@@ -178,10 +180,6 @@ def elipse (e, q, p, corners,dx,dy,nx,ny):
 
   u = 2*np.arctan(t)
   z = 0
- 	#u = sortU(u) wrong! becasue it change the order of lines in u.
- 	#print u
-
-  #chicking if the intersection point is actuly inside the triangle.
   n = 0
   for i in range (0,6):
     if tStatus[i] == True:
@@ -189,62 +187,40 @@ def elipse (e, q, p, corners,dx,dy,nx,ny):
       if(inTriangel(corners,point)):
         w[n] = u[i]
         n += 1
-
-	#calculating the value of u form the intersiction of the eclipse and the triangel.
-  uf = 0
-	#print u
+  uf = []
   w1 = [w[i] for i in xrange(n)]
   w1 = sortU(w1)
-  #print "wq afte sorting",w1
+  z = 0
+  #print w1
   for i in range(0, n):
-    if (i + 1 < n ) and (w1[i] != w1[i + 1]) :
-      #print "------------------up "
+    if (i + 1 < n ) and (w1[i] != w1[i + 1]):
       point = constantA*np.cos( w1[i]+0.001), constantB*np.sin(w1[i]+0.001)
-			#point = constantA*np.cos((w[i]+w[i+1])/2), constantB*np.sin((w[i]+w[i+1])/2)
       if (inTriangel(corners,point)):
-        if abs((w1[i +1]) - (w1[i])) < pi :
-          uf += abs((w1[i +1]) - (w1[i]))
-        else :
-          uf += abs((w1[i +1]) - (w1[i])) -2*pi
-			#print point
-			#print "plothing ", corners, point
-    elif (i + 1 >= n) and (w1[i] != w1[0]):
-			#print "------------------down " "this sutiaont must be fixed! "
+        uf.append( w1[i])
+        uf.append( w1[i+1])
+        z += 2 
+    elif(i < n) and (w1[i] != w1[0]):
       point = constantA*np.cos(w1[0]-0.001), constantB*np.sin(w1[0]-0.001)
       if (inTriangel(corners,point)):
-        if abs((w1[0]) - ((w1[i]))) < pi :
-          uf += abs((w1[0]) - ((w1[i])))
-        else :
-          uf += abs((w1[0]) - ((w1[i]))) - 2*pi
-			#print point,"-------"
-			#print "plothing ", corners, point
-		#print w
-		#print "..............",uf
-		
-	#uf = abs((w[0]) - (w[n-1]))
-  uf = abs(uf)
-	
-	#print w
-	#print 
-	#print n
-	#print " uf = ",uf
-
-
-  if n == 0:
+        uf.append( w1[n - 1] ) 
+        uf.append( w1[0] + 2*pi)
+        z += 2
+  if z == 0:
     return 0;
-
   #ref (27)
+  #print uf 
   Jacobian = ( 1.0 / (2*(q[3]*q[5])**0.5))
-
-  #ref (28) 
-  sum1 = p[0] * Jacobian * uf
-  sum1 += p[1] * Jacobian * ((e - q[0]) / q[3]) ** 0.5 * np.sin(uf)
-  sum1 += p[2] * Jacobian * ((e - q[0]) / q[5]) ** 0.5 * (-np.cos(uf))
-  sum1 += p[3] * Jacobian * abs((e - q[0]) / q[3]) * (0.5 * uf + 0.25 * np.sin(2*uf))
-  sum1 += p[4] * Jacobian * ((e - q[0]) / q[3]) **0.5 * ((e - q[0]) / q[5]) **0.5 *( -0.25 * np.cos(2*uf))
-  sum1 += p[5] * Jacobian * abs((e - q[0]) / q[5]) * (0.5 * uf - 0.25 * np.sin(2*uf))
-  #print "sum",sum1 , sum
-  return sum1;
+  sum1 = 0
+  for i in range(0, z-1, 2):
+    #ref (28) 
+    sum1 += p[0] * Jacobian * (uf[i+1] - uf[i])
+    sum1 += p[1] * Jacobian * ((e - q[0]) / q[3]) ** 0.5 * (np.sin(uf[i+1])-(np.sin(uf[i])))
+    sum1 += p[2] * Jacobian * ((e - q[0]) / q[5]) ** 0.5 * (np.cos(uf[i]) - np.cos(uf[i+1]))
+    sum1 += p[3] * Jacobian * abs((e - q[0]) / q[3]) * (((0.5 * uf[i+1] + 0.25 * np.sin(2*uf[i+1]))-(0.5 * uf[i] + 0.25 * np.sin(2*uf[i]))))
+    sum1 += p[4] * Jacobian * ((e - q[0]) / q[3]) **0.5 * ((e - q[0]) / q[5]) **0.5 *(( -0.25 * np.cos(2*uf[i+1]))-(-0.25 * np.cos(2*uf[i])))
+    sum1 += p[5] * Jacobian * abs((e - q[0]) / q[5]) * ((0.5 * uf[i+1] - 0.25 * np.sin(2*uf[i+1]))-(0.5 * uf[i] - 0.25 * np.sin(2*uf[i])))
+    #print "sum",sum1 , sum
+  return (sum1);
 """--------------------------------------------------------------------------------------------------------------------------"""
 def hyperbola (e, q, p, corners,dx,dy,nx,ny):
 
@@ -315,7 +291,6 @@ def hyperbola (e, q, p, corners,dx,dy,nx,ny):
   return abs(sum1);
 """--------------------------------------------------------------------------------------------------------------------------"""
 def parabola(e, q, p, corners,dx,dy,nx,ny):
-
   #ref 36-37 my papper    
   a = [-ny[0]*(q[3]/q[2]),
        -ny[1]*(q[3]/q[2]),
@@ -384,13 +359,186 @@ def parabola(e, q, p, corners,dx,dy,nx,ny):
     #ref (28)
     sum1 += p[0] * (1/abs(q[2])) * (uf[i+1] - uf[i])
     sum1 += p[1] * (1/abs(q[2])) * (0.5*uf[i+1]**2 - 0.5*uf[i]**2)  
-    sum1 += p[2] * (1/abs(q[2])) * (constantA*uf[i+1]- (1.0/3)*(q[3]/q[2]*uf[i+1]**3) - constantA*uf[i]- (1.0/3)*(q[3]/q[2]*uf[i]**3))
+    sum1 += p[2] * (1/abs(q[2])) * (constantA*uf[i+1]- (1.0/3)*(q[3]/q[2]*uf[i+1]**3) - (constantA*uf[i]- (1.0/3)*(q[3]/q[2]*uf[i]**3)))
     sum1 += p[3] * (1/abs(q[2])) * ((1.0/3)*uf[i+1]**3 - (1.0/3)*uf[i]**3 )
     sum1 += p[4] * (1/abs(q[2])) * (((0.5)*constantA * uf[i+1]**2 - (1.0/4)*(q[3]/q[2])*uf[i+1]**4) - ((0.5)*constantA * uf[i]**2 - (1.0/4)*(q[3]/q[2])*uf[i]**4))
     sum1 += p[5] * (1/abs(q[2])) * ( ( ((e-q[0])**2 /(q[2]**2))*uf[i+1]-(2.0/3)*(e-q[0])/q[2]*(q[3]/q[2])*uf[i+1]**3+(1.0/5)*(q[3]**2/q[2]**2)*uf[i+1]**5 )-( ((e-q[0])**2 /(q[2]**2))*uf[i]-(2.0/3)*(e-q[0])/q[2]*(q[3]/q[2])*uf[i]**3+(1.0/5)*(q[3]**2/q[2]**2)*uf[i]**5 ))
    
   return abs(sum1);
 """-------------------------------------------------------------------------------------------------------------------------------"""
+def straightLine(e, q, p, corners,dx,dy,nx,ny):  
+  b = [ny[0],
+       ny[1],
+       ny[2]]
+
+  #dxj*yj - dyj*xj     
+  cT = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
+       dx[1] * corners[1][1] - dy[1]*corners[1][0],
+       dx[2] * corners[2][1] - dy[2]*corners[2][0]]
+
+  constantA = ((e - q[0]) / q[1])
+  c = [nx[0]*constantA - cT[0],
+       nx[1]*constantA - cT[1],
+       nx[2]*constantA - cT[2]]
+
+  #ref(42) my paper
+  u = [0,0,0]
+  w = [0,0,0]
+  uStatus = [True, True, True]
+  z = 0;
+  for i in range(0, 3):
+    u[i] = -c[i]/b[i]
+  #chicking if the intersection point is actuly inside the triangle.
+  n = 0
+  for i in range (0,3):
+    if uStatus[i] == True:
+      point = constantA, u[i]
+      if(inTriangel(corners,point)):
+        #print point
+        w[n] = u[i]   
+        n += 1
+  uf = []
+  w1 = [w[i] for i in xrange(n)]
+  w1 = sortU(w1)
+  z = 0
+  for i in range(0, n):
+    if (i + 1 < n ):
+      point = constantA, (w1[i]+0.001)
+      if (inTriangel(corners,point)):
+        #print point
+        uf.append( w1[i])
+        uf.append( w1[i+1])
+        z += 2 
+    elif(i < n):
+      point = constantA, (w1[0]-0.001)
+      if (inTriangel(corners,point)):
+        uf.append( w1[n - 1])
+        uf.append( w1[0])
+        z += 2
+  if z == 0:
+    return 0;
+  #ref (35)
+  sum1 = 0
+  for i in range(0, z-1, 2):
+    sum1 += p[0] * (1/abs(q[1])) * (uf[i+1] - uf[i])
+    sum1 += p[1] * (1/abs(q[1])) * constantA * (uf[i+1] - uf[i])
+    sum1 += p[2] * (1/abs(q[1])) * (0.5*uf[i+1]**2 - 0.5*uf[i]**2)
+    sum1 += p[3] * (1/abs(q[1])) * constantA**2 * (uf[i+1] - uf[i])
+    sum1 += p[4] * (1/abs(q[1])) * constantA * (0.5*uf[i+1]**2 - 0.5*uf[i]**2)
+    sum1 += p[5] * (1/abs(q[1])) * (1.0/3 * uf[i+1]**3 - 1.0/3 * uf[i]**3)
+   
+  return abs(sum1);
+
+"""-------------------------------------------------------------------------------------------------------------------------------"""
+def degenerat(e, q, p, corners,dx,dy,nx,ny):  
+  b = [ny[0],
+       ny[1],
+       ny[2]]
+
+  #dxj*yj - dyj*xj     
+  cT = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
+       dx[1] * corners[1][1] - dy[1]*corners[1][0],
+       dx[2] * corners[2][1] - dy[2]*corners[2][0]]
+
+  constantAP = ((e - q[0]) / (q[3]*(e-q[0]))**0.5)
+  constantAM = -constantAP 
+  cP = [nx[0]*constantAP - cT[0],
+       nx[1]*constantAP - cT[1],
+       nx[2]*constantAP - cT[2]]
+  cM = [nx[0]*constantAM - cT[0],
+       nx[1]*constantAM - cT[1],
+       nx[2]*constantAM - cT[2]]
+
+  #ref(42) my paper
+  uP = [0,0,0]
+  wP = [0,0,0]
+  #ref(42) my paper
+  uM = [0,0,0]
+  wM = [0,0,0]
+  uStatusP = [True, True, True]
+  uStatusM = [True, True, True]
+  z = 0;
+  for i in range(0, 3):
+    uP[i] = -cP[i]/b[i]
+    uM[i] = -cM[i]/b[i]
+  #chicking if the intersection point is actuly inside the triangle.
+  nP = 0
+  for i in range (0,3):
+    if uStatusP[i] == True:
+      point = constantAP, uP[i]
+      if(inTriangel(corners,point)):
+        #print point
+        wP[nP] = uP[i]   
+        nP += 1
+  nM = 0
+  for i in range (0,3):
+    if uStatusM[i] == True:
+      point = constantAM, uM[i]
+      if(inTriangel(corners,point)):
+        #print point
+        wM[nM] = uM[i]   
+        nM += 1
+
+  ufP = []
+  w1P = [wP[i] for i in xrange(nP)]
+  w1P = sortU(w1P)
+  ufM = []
+  w1M = [wM[i] for i in xrange(nM)]
+  w1M = sortU(w1M)
+  zP = 0
+  for i in range(0, nP):
+    if (i + 1 < nP ):
+      point = constantAP, (w1P[i]+0.001)
+      if (inTriangel(corners,point)):
+        #print point
+        ufP.append( w1P[i])
+        ufP.append( w1P[i+1])
+        zP += 2 
+    elif(i < nP):
+      point = constantAP, (w1P[0]-0.001)
+      if (inTriangel(corners,point)):
+        ufP.append( w1P[nP - 1])
+        ufP.append( w1P[0])
+        zP += 2
+  zM = 0
+  for i in range(0, nM):
+    if (i + 1 < nM ):
+      point = constantAM, (w1M[i]+0.001)
+      if (inTriangel(corners,point)):
+        #print point
+        ufM.append( w1M[i])
+        ufM.append( w1M[i+1])
+        zM += 2 
+    elif(i < nM):
+      point = constantAM, (w1M[0]-0.001)
+      if (inTriangel(corners,point)):
+        ufM.append( w1M[nM - 1])
+        ufM.append( w1M[0])
+        zM += 2
+  if zP ==  0 and zM == 0:
+    return 0;
+  #ref (40)/ my paper (47- 60)
+  sum1P = 0
+  j = 0.5/(q[3]*(e-q[0]))**0.5
+  for i in range(0, zP-1, 2):
+    sum1P += p[0] * j * (ufP[i+1] - ufP[i])
+    sum1P += p[1] * j * constantAP * (ufP[i+1] - ufP[i])
+    sum1P += p[2] * j * (0.5*ufP[i+1]**2 - 0.5*ufP[i]**2)
+    sum1P += p[3] * j * constantAP**2 * (ufP[i+1] - ufP[i])
+    sum1P += p[4] * j* constantAP * (0.5*ufP[i+1]**2 - 0.5*ufP[i]**2)
+    sum1P += p[5] * j * (1.0/3 * ufP[i+1]**3 - 1.0/3 * ufP[i]**3)
+  sum1M = 0
+  j = 0.5/(q[3]*(e-q[0]))**0.5
+
+  for i in range(0, zM-1, 2):
+    sum1M += p[0] * j * (ufM[i+1] - ufM[i])
+    sum1M += p[1] * j * constantAM * (ufM[i+1] - ufM[i])
+    sum1M += p[2] * j * (0.5*ufM[i+1]**2 - 0.5*ufM[i]**2)
+    sum1M += p[3] * j * constantAM**2 * (ufM[i+1] - ufM[i])
+    sum1M += p[4] * j* constantAM * (0.5*ufM[i+1]**2 - 0.5*ufM[i]**2)
+    sum1M += p[5] * j * (1.0/3 * ufM[i+1]**3 - 1.0/3 * ufM[i]**3)
+   
+  return abs(sum1M + sum1P);
 """-------------------------------------------------(linear test)-------------------------------------------------------------------------------"""
 # Function check if a point p inside the triangel! 
 #p = p0 + (c1 - c0) * s + (c2 - c0) * t
@@ -415,100 +563,6 @@ def inTriangel(c,p):
 	#print "status false : ",st
 	return False;
 
-def getConstantsPi2(E,k,f):
-  # p0 + p1 x0 + p2 y0 = f0
-  # p0 + p1 x1 + p2 y1 = f1
-  # p0 + p1 x2 + p2 y2 = f1
-
-  matriseA =[ [1, k[0][0], k[0][1]],
-              [1, k[1][0], k[1][1]],
-              [1, k[2][0], k[2][1]]]
-  matriseB =[f[0],
-             f[1],
-             f[2]]
-
-  p = np.linalg.solve(matriseA, matriseB)
-  return p;
-#ref -(6b)
-def getConstantsEi2(E,k):
-  # q0 + q1 x0 + q2 y0 = E0
-  # q0 + q1 x1 + q2 y1 = E1
-  # q0 + q1 x2 + q2 y2 = E1
-
-  matriseA =[ [1, k[0][0], k[0][1]],
-              [1, k[1][0], k[1][1]],
-              [1, k[2][0], k[2][1]]]
-  matriseB =[E[0],
-             E[1],
-             E[2]]
-  q = np.linalg.solve(matriseA, matriseB)
-  return q;
-
-# Function returns the integral of I(E)for E1<e<E2 ref(14)
-def IEIntegral1(e, E, k):
-  #kt = k[0] + (e - E[0])/(E[2]-E[0]) * (k[2] - k[0]) 
-  kt = np.add(k[0], np.multiply((e - E[0])/(E[2]-E[0]), (np.subtract(k[2],k[0])))) 
-
-  #ku = (e - E[0])/(E[1]-E[0]) * (k[1]-k[0]). - (e - E[0]) / (E[2]-E[0]) * (k[2]- k[0]) 
-  ku = np.subtract(np.multiply((e-E[0])/(E[1]-E[0]),(np.subtract(k[1],k[0]))), np.multiply((e-E[0])/(E[2]-E[0]) ,np.subtract(k[2],k[0])) )
-  # Function returns the integral of I(E) for E2<e<E3
-  return kt, ku;
-
-#ref (16)
-def IEIntegral2(e, E, k):
-  #kt = k[2] + (e - E[2])/(E[2]-E[0]) * (k[2] - k[0])
-  kt = np.add(k[2], np.multiply((e - E[2])/(E[2]-E[0]), (np.subtract(k[2],k[0])))) 
-
-  #ku = (e - E[2])/(E[2]-E[1]) * (k[2]-k[1]). - (e - E[2]) / (E[2]-E[0]) * (k[2]- k[0]) 
-  ku = np.subtract(np.multiply((e-E[2])/(E[2]-E[1]),(np.subtract(k[2],k[1]))), np.multiply((e-E[2])/(E[2]-E[0]) ,np.subtract(k[2],k[0])) )
-  # Function returns the integral of I(E) for E2<e<E3
-  return kt, ku;
-
-#ref(14)
-def determinantJacobian1(e, E, k):
-  # the Jacobian (e - E[0])/((E[1]-E[0])*(E[2]-E[0])) * [[k20 - k00]  , [k10 - k00]]
-  #                                                     [[k21 - k01]  , [k11 - k01]] 
-  j =  [[k[2][0] - k[0][0], k[1][0] - k[0][0]],
-       [k[2][1] - k[0][1], k[1][1] - k[0][1]]]
-  j = np.linalg.det(j)
-  if j < 0 :
-    j = j * -1
-  return (e - E[0])/((E[1]-E[0])*(E[2]-E[0])) * j;
-
-#ref(17)
-def determinantJacobian2(e, E, k):
-  # the Jacobian (E[2] - e)/((E[2]-E[1])*(E[2]-E[0])) * [[k20 - k10]  , [k20 - k00]]
-  #                                                     [[k21 - k11]  , [k21 - k01]] 
-  j = [[k[2][0] - k[1][0], k[2][0] - k[0][0]],
-      [k[2][1] - k[1][1], k[2][1] - k[0][1]]]
-  j = np.linalg.det(j)
-  if j < 0 :
-    j = j * -1
-  return (E[2] - e)/((E[2]-E[1])*(E[2]-E[0])) * j;
-
-#ref(19)
-def triangelIntegral1(e,E,k,f):
-  E, f, k = sortE2(E, f, k);
-  p = getConstantsPi2(E,k,f)
-  #print E, e
-  #q = getConstantsEi(E,k) #is not needed for linear intorpolation. 
-
-  if E[0] <= e and e <= E[1]:
-    
-    kt, ku = IEIntegral1(e, E, k);
-    Jacobian = determinantJacobian1(e,E,k)
-  elif E[1] <= e and e <= E[2]:
-
-    kt, ku = IEIntegral2(e, E, k);
-    Jacobian = determinantJacobian2(e,E,k)   
-  else:
-    kt = 0,0
-    ku = 0,0
-    Jacobian = 0
-  
-  #sum = p0*v0 + p1 *v1+ p2*v2  
-  sum = p[0] * Jacobian + p[1]*Jacobian*(kt[0]+ 0.5*ku[0])+ p[2] *Jacobian * (kt[1] + 0.5 * ku[1]) ;
-  return sum;
 """-------------------------------------------------------------------------------------------------------------------"""
 
 # Function returns the integral of I(E)for a surface " Ellipse, Hyperbola, Parabola, Stright line, Degenerate"
@@ -551,6 +605,10 @@ def surfaces(e, q, p, corners):
     sum = hyperbola(e, q, p, corners, dx, dy, nx, ny)
   elif q[2] != 0 and q[3] != 0 and (q[1], q[4], q[5] == 0,0,0):
     sum = parabola(e, q, p, corners, dx, dy, nx, ny)
+  elif q[1] != 0 and (q[2],q[3], q[4], q[5] == 0,0,0,0):
+    sum = straightLine(e, q, p, corners, dx, dy, nx, ny)
+  elif q[3] != 0 and (q[1],q[2], q[4], q[5] == 0,0,0,0):
+    sum = degenerat(e, q, p, corners, dx, dy, nx, ny)
   else :
   	return 0;
 
