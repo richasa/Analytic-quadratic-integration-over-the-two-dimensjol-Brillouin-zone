@@ -1,7 +1,0 @@
-week 1:
-first i took a look at analytic quadratic integration over the two-dimensional brillouin zone, with linear interpolation and quadratic integration. so far it look a good idea to go one step farther and integrat 3 dimesnon brillion zone anlytic but the is onther method i have to check first. 
-
-started to program  the analystic linear intorplotion for the 2 dim brillionzone with method described by G Wisebejjer,g te Velse and E J baerends reeived 25 november 1987.
-
-week 2:
- finished writing a program in python for linear interpolation and give an acceptbale results 

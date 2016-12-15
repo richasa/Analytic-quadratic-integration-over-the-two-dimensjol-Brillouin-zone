@@ -16,18 +16,45 @@ Deltak = 0.01
 #enter the function f here 
 def functionf (x,y):
   #f = (x**2) + y**2;
+  f = 1+0.3*x*y+0.1*x*x -0.21*y*y +x +0.5*y
+  #f = y**2
   #f = 1
-  f = 1+x+y+y**2 + y*x+x**2
+  #f = x*y
+  #f = y #look tom
+  #f =1+ x
+  #f = x*y
+  #f = y
+  #f = 1+ x
   return f;
 
 #enter the function E here 
 def energyf (x,y):
-  E = x**2 + y**2;
+  #E = x**2 + y**2;
   #E = 2+ x*y
   #E = 2*y + x**2
   #E =  x**2
   #E =  1 + 2*x
   #E = 0.9 + x**2
+  #E = x**3
+  #E = x +y
+  #E = 2*x + y +0.5*x**2-0.5*y**2+ x*y
+  #E = 0.5*x**2+0.7*y**2+ x*y 
+  #E =  x*y + 0.5*x**2 + 0.5*y**2 + x
+  #E = x*y +x**2+y**2
+  #E = 2*x*y +x**2 +y**2
+  #E = 2*x*y +x**2 -y**2
+  #E  = -2*x*y -x**2 - y**2 + 2
+  #E = 1 + 4*x + x**2
+  #E = 1 + 4*x + x**2 + y**2
+  #E =  0.3+ 2*x+ x**2 #look tom
+  #E = 0.5*y**2 + 0.5*y
+  #E = 0.5*x + 2*x**2 + -5*y**2
+  #E =0.2 + -2*y  + -2*x+2*y**2
+  #E =  -0.25 +x*y
+  #E = 2*x+0.2*y+ y**2
+  #E =  x*y + 0.5*x**2 + 0.5*y**2 + x
+  E =x+ y+ 2*y**2 + 3*x**2
+  #E = 0.1*y**2+ x**2 
   return E;
 
 
@@ -47,7 +74,7 @@ def creatkGrid():
   width = maxX - miniX
   height = maxY - miniY
   #only to avoid triangel dx and dy = 0! this depends on the grid we chose 
-  rotation = 0.5
+  rotation = 0.00
  
   nx = int(float(width/Deltak)) 
   ny = int(float(height/Deltak)) 
@@ -112,7 +139,6 @@ def getConstantsEi(E,k):
 def IEIntegral1(e, E, k):
   #kt = k[0] + (e - E[0])/(E[2]-E[0]) * (k[2] - k[0]) 
   kt = np.add(k[0], np.multiply((e - E[0])/(E[2]-E[0]), (np.subtract(k[2],k[0])))) 
-
   #ku = (e - E[0])/(E[1]-E[0]) * (k[1]-k[0]). - (e - E[0]) / (E[2]-E[0]) * (k[2]- k[0]) 
   ku = np.subtract(np.multiply((e-E[0])/(E[1]-E[0]),(np.subtract(k[1],k[0]))), np.multiply((e-E[0])/(E[2]-E[0]) ,np.subtract(k[2],k[0])) )
   # Function returns the integral of I(E) for E2<e<E3
@@ -156,12 +182,11 @@ def triangelIntegral(e,E,k,f):
   p = getConstantsPi(E,k,f)
 
   #q = getConstantsEi(E,k) #is not needed for linear intorpolation. 
-
-  if E[0] <= e and e <= E[1]:
+  if E[0] <= e and e < E[1]:
     
     kt, ku = IEIntegral1(e, E, k);
     Jacobian = determinantJacobian1(e,E,k)
-  elif E[1] <= e and e <= E[2]:
+  elif E[1] <= e and e < E[2]:
 
     kt, ku = IEIntegral2(e, E, k);
     Jacobian = determinantJacobian2(e,E,k)   

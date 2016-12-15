@@ -1,8 +1,0 @@
-\select@language {english}
-\contentsline {section}{\numberline {1}2D}{3}{section.1}
-\contentsline {subsection}{\numberline {1.1}$f = 1$ case}{3}{subsection.1.1}
-\contentsline {subsection}{\numberline {1.2}$f = r^2$ case}{3}{subsection.1.2}
-\contentsline {section}{\numberline {2}The limits on the u-integration of the goniometric equations}{4}{section.2}
-\contentsline {subsection}{\numberline {2.1}ellipse}{4}{subsection.2.1}
-\contentsline {section}{\numberline {3}Checking if a point is inside a triangle}{4}{section.3}
-\contentsline {section}{\numberline {4}What is next?}{5}{section.4}
