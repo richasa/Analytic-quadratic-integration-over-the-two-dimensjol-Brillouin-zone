@@ -2,7 +2,7 @@
 Analytic qudtratic interpolation "G wiesenekker,G received 1987" 2D test
 dimensionaless k vekort
 the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))  
-Redistributions of source code must retain the above copyright notice, 
+Redistributions of source code must retain the copyright notice, 
 """
 
 import numpy as np
@@ -746,7 +746,7 @@ def inTriangelStraight(c,p):
 """-------------------------------------------------------------------------------------------------------------------"""
 
 # Function returns the integral of I(E)for a surface " Ellipse, Hyperbola, Parabola, Stright line, Degenerate"
-def surfaces(e, q, p, corners,f,k,E):
+def surfaces(e, corners,k,E):
   """
                   (x2,y2)
                   / \ 
@@ -754,8 +754,10 @@ def surfaces(e, q, p, corners,f,k,E):
                 /     \ 
                /       \   
       (x0,y0) /_________\(x1,y1)
+
   """ 
-  
+  q = getConstantsEi(E,k)
+  q = np.around(q, 10)
   #ref 41 & 42
   #ref 24-35 my paper
 
@@ -811,22 +813,14 @@ def surfaces(e, q, p, corners,f,k,E):
   sum = 0.0
   vn = ABv(A,B,vn)
   vn = np.dot(vn,FnI)
-  for i in range(0, 6):
-    #vn = np.dot(vn,FI)
-    sum += f[i]*vn[i]#*Det
-  #return sum*det;
-  return sum
+  return vn
 
 def triangelIntegral(e, E, k, f, corners):
 
-  #E, f, k = sortE(E, f, k);
-  p = getConstantsPi(E,k,f)
-  q = getConstantsEi(E,k)
-  #rounding to 10^-10 decimal. 
-  p = np.around(p, 10)
-  q = np.around(q, 10)
-
-  sum = surfaces(e, q, p, corners,f,k,E)
+  v = surfaces(e, corners,k,E)
+  sum = 0
+  for i in range(0, 6):
+    sum += f[i]*v[i]
   return sum;
 
 
