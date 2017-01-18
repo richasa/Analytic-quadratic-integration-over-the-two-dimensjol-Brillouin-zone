@@ -2,7 +2,7 @@
 Analytic qudtratic interpolation "G wiesenekker,G received 1987" 2D test
 dimensionaless k vekort
 the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))  
-Redistributions of source code must retain the copyright notice, 
+Redistributions of source code must retain the above copyright notice, 
 """
 
 import numpy as np
@@ -12,24 +12,29 @@ import math
 e = 1
 miniX = -2
 maxX = 2
-miniY =-2
+miniY = -2
 maxY = 2
-Deltak = 0.1
-Det = Deltak**2
+Deltak =1
+Det = (2*Deltak)**2
 pi = 3.14159265359
 epsilion = 1*10**-9
+FI =[[1,0,0,0,0,0],
+     [-3,-1,0,4,0,0],
+     [-3,0,-1,0,0,4],
+     [2,2,0,-4,0,0],
+     [4,0,0,-4,4,-4],
+     [2,0,2,0,0,-4]]
 
 #just apply any desired funksjon f.
 def functionf (x,y):
-  f = 1+0.3*x*y+0.1*x*x -0.21*y*y +x +0.5*y
+  f =  1+3*x-5*y+7*x**2+11*y**2
   return f;
 
 #also any desired funksjon E.
 def energyf (x,y):
   #E = x**2 + y**2;
-  E =x+ y+ 2*y**2 + 3*x**2
+  E =  x**2
   return E;
-
 
 # function creat k grid. triangel
 """  ___________
@@ -89,22 +94,25 @@ def ABv(A,B,v):
 
 #ref (20 a) this is not necessary and not used function, since we used weight method for integration I = f(k)*w 
 #this was for function was for testing where intergration  I = pi*vi  
-def getConstantsPi(E,k,f):
-  matriseA =[ [1, k[0][0], k[0][1], k[0][0]**2, k[0][0]*k[0][1], k[0][1]**2 ],
-              [1, k[1][0], k[1][1], k[1][0]**2, k[1][0]*k[1][1], k[1][1]**2 ],
-              [1, k[2][0], k[2][1], k[2][0]**2, k[2][0]*k[2][1], k[2][1]**2 ],
-              [1, k[3][0], k[3][1], k[3][0]**2, k[3][0]*k[3][1], k[3][1]**2 ],
-              [1, k[4][0], k[4][1], k[4][0]**2, k[4][0]*k[4][1], k[4][1]**2 ],
-              [1, k[5][0], k[5][1], k[5][0]**2, k[5][0]*k[5][1], k[5][1]**2 ]]
+def getConstantsAB(k,corners):
+  matriseA =[ [k[0][0],k[0][1],1],
+              [k[1][0],k[1][1],1],
+              [k[2][0],k[2][1],1]]
 
-  matriseB =[f[0],
-             f[1],
-             f[2],
-             f[3],
-             f[4],
-             f[5]]
-  p = np.linalg.solve(matriseA, matriseB)
-  return p;
+  matriseB1 =[0,1,0]
+  matriseB2 =[0,0,1]
+
+  A1 = np.linalg.solve(matriseA, matriseB1)
+  A2 = np.linalg.solve(matriseA, matriseB2)
+  #print A1,A2
+  A = [[A1[0],A1[1]],
+       [A2[0],A2[1]]]
+  B = [-A1[2],-A2[2]] #---------------------------maybe minus
+  AI = np.linalg.inv(A)
+  #for i in range(0, 6):
+  #  k[i] = k[i][0]*A[0][0] + k[i][1]*A[0][1] -B[0], k[i][0]*A[1][0] + k[i][1]*A[1][1] -B[1]
+  #print k
+  return AI,B;
 
 #ref -(20b) here is where we find which energy surface we are dealing with. all the six point is required to solv the 6 unkown problem [q1,q2,q3,q4,q5,q6].
 def getConstantsEi(E,k):
@@ -240,9 +248,6 @@ def getAfineConstat(q,k,A,B):
 
 """------------------------------------------Surface integration functions--------------------------------------------------------"""
 def elipse (e, q, corners,dx,dy,nx,ny):
-  #print B, "B"
-  #print A, "A"
-  #dxj*yj - dyj*xj     
   c = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
        dx[1] * corners[1][1] - dy[1]*corners[1][0],
        dx[2] * corners[2][1] - dy[2]*corners[2][0]]
@@ -755,24 +760,24 @@ def surfaces(e, corners,k,E):
                /       \   
       (x0,y0) /_________\(x1,y1)
 
-  """ 
-  q = getConstantsEi(E,k)
-  q = np.around(q, 10)
-  #ref 41 & 42
-  #ref 24-35 my paper
-
-  Fn =[[1,k[0][0],k[0][1],k[0][0]**2,k[0][0]*k[0][1],k[0][1]**2],
-      [1,k[1][0],k[1][1],k[1][0]**2,k[1][0]*k[1][1],k[1][1]**2],
-      [1,k[2][0],k[2][1],k[2][0]**2,k[2][0]*k[2][1],k[2][1]**2],
-      [1,k[3][0],k[3][1],k[3][0]**2,k[3][0]*k[3][1],k[3][1]**2],
-      [1,k[4][0],k[4][1],k[4][0]**2,k[4][0]*k[4][1],k[4][1]**2],
-      [1,k[5][0],k[5][1],k[5][0]**2,k[5][0]*k[5][1],k[5][1]**2]];
-  FnI = np.linalg.inv(Fn)
+  """
+  A1,B1 = getConstantsAB(k,corners)
+  k = [[0,0],
+      [1,0],
+      [0,1],
+      [0.5,0],
+      [0.5,0.5],
+      [0,0.5]]
+  q = np.dot(FI,E)
+  q = np.around(q, 9)
 
   A = [[1,0],
        [0,1]]
   B = [0,0]
+ 
   q, k, A, B = getAfineConstat(q,k,A,B)
+
+
   k = np.around(k, 10)
   A = np.around(A, 10)
   B = np.around(B, 10)
@@ -809,10 +814,14 @@ def surfaces(e, corners,k,E):
   elif q[3] != 0 and (q[1],q[2], q[4], q[5] == 0,0,0,0):
     vn = degenerat(e, q, corners,dx,dy,nx,ny)
   else :
-    return 0;
+    return [0,0,0,0,0,0];
   sum = 0.0
+  Det = np.linalg.det(A1)
+  print "det--------",Det
+
   vn = ABv(A,B,vn)
-  vn = np.dot(vn,FnI)
+  vn = np.dot(vn,FI) * Det
+  print "vn", vn
   return vn
 
 def triangelIntegral(e, E, k, f, corners):
