@@ -2,39 +2,34 @@
 Analytic qudtratic interpolation "G wiesenekker,G received 1987" 2D test
 dimensionaless k vekort
 the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))  
-Redistributions of source code must retain the above copyright notice, 
+Redistributions of source code must retain the copyright notice, 
 """
-import twoD
+
 import numpy as np
 import math
 # testng the function
 #initializing the integrating grid, e must be an array, but here we used 1 point test. Deltak is the triangel width and height.  
-e = 0.1
-miniX = 0
-maxX = 1
-miniY = 0
-maxY = 1
-Deltak =0.5
-Det = (2*Deltak)**2
+e = 1
+miniX = -2
+maxX = 2
+miniY =-2
+maxY = 2
+Deltak = 1
+Det = Deltak**2
 pi = 3.14159265359
 epsilion = 1*10**-9
-FI =[[1,0,0,0,0,0],
-     [-3,-1,0,4,0,0],
-     [-3,0,-1,0,0,4],
-     [2,2,0,-4,0,0],
-     [4,0,0,-4,4,-4],
-     [2,0,2,0,0,-4]]
 
 #just apply any desired funksjon f.
 def functionf (x,y):
-  f =  1
+  f = 1+3*x-5*y+7*x**2+11*y**2
   return f;
 
 #also any desired funksjon E.
 def energyf (x,y):
   #E = x**2 + y**2;
-  E =  x**2+y**2
+  E = 4*x+4*y
   return E;
+
 
 # function creat k grid. triangel
 """  ___________
@@ -52,7 +47,7 @@ def creatkGrid():
   width = maxX - miniX
   height = maxY - miniY
   #rotation grid was a nessery step in testing. but not any more. 
-  rotation = 0.0
+  rotation = 0.01
   nx = int(float(width/Deltak)) 
   ny = int(float(height/Deltak)) 
 
@@ -94,25 +89,22 @@ def ABv(A,B,v):
 
 #ref (20 a) this is not necessary and not used function, since we used weight method for integration I = f(k)*w 
 #this was for function was for testing where intergration  I = pi*vi  
-def getConstantsAB(k):
-  matriseA =[ [k[0][0],k[0][1],1],
-              [k[1][0],k[1][1],1],
-              [k[2][0],k[2][1],1]]
+def getConstantsPi(E,k,f):
+  matriseA =[ [1, k[0][0], k[0][1], k[0][0]**2, k[0][0]*k[0][1], k[0][1]**2 ],
+              [1, k[1][0], k[1][1], k[1][0]**2, k[1][0]*k[1][1], k[1][1]**2 ],
+              [1, k[2][0], k[2][1], k[2][0]**2, k[2][0]*k[2][1], k[2][1]**2 ],
+              [1, k[3][0], k[3][1], k[3][0]**2, k[3][0]*k[3][1], k[3][1]**2 ],
+              [1, k[4][0], k[4][1], k[4][0]**2, k[4][0]*k[4][1], k[4][1]**2 ],
+              [1, k[5][0], k[5][1], k[5][0]**2, k[5][0]*k[5][1], k[5][1]**2 ]]
 
-  matriseB1 =[0,1,0]
-  matriseB2 =[0,0,1]
-
-  A1 = np.linalg.solve(matriseA, matriseB1)
-  A2 = np.linalg.solve(matriseA, matriseB2)
-  #print A1,A2
-  A = [[A1[0],A1[1]],
-       [A2[0],A2[1]]]
-  B = [-A1[2],-A2[2]] #---------------------------maybe minus
-  AI = np.linalg.inv(A)
-  #for i in range(0, 6):
-  #  k[i] = k[i][0]*A[0][0] + k[i][1]*A[0][1] -B[0], k[i][0]*A[1][0] + k[i][1]*A[1][1] -B[1]
-  #print k
-  return AI,B;
+  matriseB =[f[0],
+             f[1],
+             f[2],
+             f[3],
+             f[4],
+             f[5]]
+  p = np.linalg.solve(matriseA, matriseB)
+  return p;
 
 #ref -(20b) here is where we find which energy surface we are dealing with. all the six point is required to solv the 6 unkown problem [q1,q2,q3,q4,q5,q6].
 def getConstantsEi(E,k):
@@ -248,6 +240,9 @@ def getAfineConstat(q,k,A,B):
 
 """------------------------------------------Surface integration functions--------------------------------------------------------"""
 def elipse (e, q, corners,dx,dy,nx,ny):
+  #print B, "B"
+  #print A, "A"
+  #dxj*yj - dyj*xj     
   c = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
        dx[1] * corners[1][1] - dy[1]*corners[1][0],
        dx[2] * corners[2][1] - dy[2]*corners[2][0]]
@@ -751,7 +746,7 @@ def inTriangelStraight(c,p):
 """-------------------------------------------------------------------------------------------------------------------"""
 
 # Function returns the integral of I(E)for a surface " Ellipse, Hyperbola, Parabola, Stright line, Degenerate"
-def surfaces(e,k,E):
+def surfaces(e, corners,k,E):
   """
                   (x2,y2)
                   / \ 
@@ -759,26 +754,25 @@ def surfaces(e,k,E):
                 /     \ 
                /       \   
       (x0,y0) /_________\(x1,y1)
-
-  """
-  A1,B1 = getConstantsAB(k)
-  k = [[0,0],
-      [1,0],
-      [0,1],
-      [0.5,0],
-      [0.5,0.5],
-      [0,0.5]]
-  q = np.dot(FI,E)
+  """ 
+  q = getConstantsEi(E,k)
   q = np.around(q, 10)
-  #print ("q",q)
+  print k
+  #ref 41 & 42
+  #ref 24-35 my paper
+
+  Fn =[[1,k[0][0],k[0][1],k[0][0]**2,k[0][0]*k[0][1],k[0][1]**2],
+      [1,k[1][0],k[1][1],k[1][0]**2,k[1][0]*k[1][1],k[1][1]**2],
+      [1,k[2][0],k[2][1],k[2][0]**2,k[2][0]*k[2][1],k[2][1]**2],
+      [1,k[3][0],k[3][1],k[3][0]**2,k[3][0]*k[3][1],k[3][1]**2],
+      [1,k[4][0],k[4][1],k[4][0]**2,k[4][0]*k[4][1],k[4][1]**2],
+      [1,k[5][0],k[5][1],k[5][0]**2,k[5][0]*k[5][1],k[5][1]**2]];
+  FnI = np.linalg.inv(Fn)
 
   A = [[1,0],
        [0,1]]
   B = [0,0]
- 
   q, k, A, B = getAfineConstat(q,k,A,B)
-
-
   k = np.around(k, 10)
   A = np.around(A, 10)
   B = np.around(B, 10)
@@ -817,16 +811,14 @@ def surfaces(e,k,E):
   else :
     return [0,0,0,0,0,0];
   sum = 0.0
-  Det = np.linalg.det(A1)
-
   vn = ABv(A,B,vn)
-  vn = np.dot(vn,FI) * Det
-  #print vn
+  vn = np.dot(vn,FnI)
+  print vn
   return vn
 
-def triangelIntegral(e, E, k, f):
+def triangelIntegral(e, E, k, f, corners):
 
-  v = surfaces(e,k,E)
+  v = surfaces(e, corners,k,E)
   sum = 0
   for i in range(0, 6):
     sum += f[i]*v[i]
@@ -850,16 +842,15 @@ def totalInegral():
       E = [EGrid[ix][iy], EGrid[ix + 2][iy], EGrid[ix ][iy + 2], EGrid[ix + 1][iy], EGrid[ix + 1][iy + 1], EGrid[ix][iy + 1]]
       k = [kGrid[ix][iy], kGrid[ix + 2][iy], kGrid[ix ][iy + 2], kGrid[ix + 1][iy], kGrid[ix + 1][iy + 1], kGrid[ix][iy + 1]]
       f = [fGrid[ix][iy], fGrid[ix + 2][iy], fGrid[ix ][iy + 2], fGrid[ix + 1][iy], fGrid[ix + 1][iy + 1], fGrid[ix][iy + 1]]
-      print k
-      print E
-      sum += triangelIntegral(e,E,k,f)
-      print "lol ", sum
+      corners = [k[0], k[1], k[2]]
+      sum += triangelIntegral(e,E,k,f, corners)
 
       #summing over the partall triangel
       E = [EGrid[ix + 2][iy +2], EGrid[ix][iy + 2],EGrid[ix + 2][iy], EGrid[ix + 1][iy + 2], EGrid[ix + 1][iy+1], EGrid[ix + 2][iy + 1]]
       k = [kGrid[ix + 2][iy +2], kGrid[ix][iy + 2],kGrid[ix + 2][iy], kGrid[ix + 1][iy + 2], kGrid[ix + 1][iy+1], kGrid[ix + 2][iy + 1]]
       f = [fGrid[ix + 2][iy +2], fGrid[ix][iy + 2],fGrid[ix + 2][iy], fGrid[ix + 1][iy + 2], fGrid[ix + 1][iy+1], fGrid[ix + 2][iy + 1]]
-      sum += triangelIntegral(e, E, k, f)
+      corners = [k[0], k[1], k[2]]
+      sum += triangelIntegral(e, E, k, f, corners)
   return sum
 
 print totalInegral()

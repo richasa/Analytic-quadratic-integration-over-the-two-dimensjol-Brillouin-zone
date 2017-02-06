@@ -4,17 +4,17 @@ dimensionaless k vekort
 the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))  
 Redistributions of source code must retain the above copyright notice, 
 """
-import twoD
+
 import numpy as np
 import math
 # testng the function
 #initializing the integrating grid, e must be an array, but here we used 1 point test. Deltak is the triangel width and height.  
-e = 0.1
-miniX = 0
-maxX = 1
-miniY = 0
-maxY = 1
-Deltak =0.5
+e = 1
+miniX = -3
+maxX = 3
+miniY = -3
+maxY = 3
+Deltak =0.1
 Det = (2*Deltak)**2
 pi = 3.14159265359
 epsilion = 1*10**-9
@@ -52,7 +52,7 @@ def creatkGrid():
   width = maxX - miniX
   height = maxY - miniY
   #rotation grid was a nessery step in testing. but not any more. 
-  rotation = 0.0
+  rotation = 0.01
   nx = int(float(width/Deltak)) 
   ny = int(float(height/Deltak)) 
 
@@ -248,6 +248,7 @@ def getAfineConstat(q,k,A,B):
 
 """------------------------------------------Surface integration functions--------------------------------------------------------"""
 def elipse (e, q, corners,dx,dy,nx,ny):
+  print "reach", q[5]
   c = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
        dx[1] * corners[1][1] - dy[1]*corners[1][0],
        dx[2] * corners[2][1] - dy[2]*corners[2][0]]
@@ -832,34 +833,8 @@ def triangelIntegral(e, E, k, f):
     sum += f[i]*v[i]
   return sum;
 
-
-def totalInegral():
-  totalInegralSum = 0;
-
-  kGrid ,EGrid, fGrid = creatkGrid()
-
-  numrows = len(kGrid)
-  numcols = len(kGrid)
-  sum = 0.0
-  #integrating over the  triangels
-  i = 0
-  for ix in range(0, len(kGrid) - 1, 2):
-    for iy in range (0, len(kGrid[ix]) - 1, 2): # q and p must be here 
-      i = i+1 
-      #summing over the odd triangel
-      E = [EGrid[ix][iy], EGrid[ix + 2][iy], EGrid[ix ][iy + 2], EGrid[ix + 1][iy], EGrid[ix + 1][iy + 1], EGrid[ix][iy + 1]]
-      k = [kGrid[ix][iy], kGrid[ix + 2][iy], kGrid[ix ][iy + 2], kGrid[ix + 1][iy], kGrid[ix + 1][iy + 1], kGrid[ix][iy + 1]]
-      f = [fGrid[ix][iy], fGrid[ix + 2][iy], fGrid[ix ][iy + 2], fGrid[ix + 1][iy], fGrid[ix + 1][iy + 1], fGrid[ix][iy + 1]]
-      print k
-      print E
-      sum += triangelIntegral(e,E,k,f)
-      print "lol ", sum
-
-      #summing over the partall triangel
-      E = [EGrid[ix + 2][iy +2], EGrid[ix][iy + 2],EGrid[ix + 2][iy], EGrid[ix + 1][iy + 2], EGrid[ix + 1][iy+1], EGrid[ix + 2][iy + 1]]
-      k = [kGrid[ix + 2][iy +2], kGrid[ix][iy + 2],kGrid[ix + 2][iy], kGrid[ix + 1][iy + 2], kGrid[ix + 1][iy+1], kGrid[ix + 2][iy + 1]]
-      f = [fGrid[ix + 2][iy +2], fGrid[ix][iy + 2],fGrid[ix + 2][iy], fGrid[ix + 1][iy + 2], fGrid[ix + 1][iy+1], fGrid[ix + 2][iy + 1]]
-      sum += triangelIntegral(e, E, k, f)
-  return sum
-
-print totalInegral()
+E = [1,1,1,1,1,1]
+k = [(0.0, 0.0), (-1.0, 0.0), (0.0, -1.0), (-0.5, 0.0), (-0.5, -0.5), (0.0, -0.5)]
+f = [1, 1, 1, 1, 1, 1]
+corners = [(0.0, 0.0), (-1.0, 0.0), (0.0, -1.0)]
+#print triangelIntegral(e, E, k, f)

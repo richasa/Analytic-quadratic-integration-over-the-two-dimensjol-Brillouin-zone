@@ -1,0 +1,15 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}2D}{3}{section.1}
+\contentsline {subsection}{\numberline {1.1}$f = 1$ case}{3}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}$f = r^2$ case}{3}{subsection.1.2}
+\contentsline {section}{\numberline {2}The limits on the u-integration of the goniometric equations}{4}{section.2}
+\contentsline {subsection}{\numberline {2.1}Ellipse}{4}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Hyperbola}{4}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Parabola}{5}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Straight line}{5}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.5}Degenerate}{5}{subsection.2.5}
+\contentsline {section}{\numberline {3}Checking if a point is inside a triangle}{6}{section.3}
+\contentsline {section}{\numberline {4}3D}{6}{section.4}
+\contentsline {subsection}{\numberline {4.1}Standard tetrahedron}{6}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}3D-z}{7}{subsection.4.2}
+\contentsline {section}{\numberline {5}What is next?}{7}{section.5}

@@ -4,17 +4,17 @@ dimensionaless k vekort
 the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))  
 Redistributions of source code must retain the above copyright notice, 
 """
-import twoD
+
 import numpy as np
 import math
 # testng the function
 #initializing the integrating grid, e must be an array, but here we used 1 point test. Deltak is the triangel width and height.  
-e = 0.1
-miniX = 0
-maxX = 1
-miniY = 0
-maxY = 1
-Deltak =0.5
+e = 1
+miniX = -4
+maxX = 4
+miniY = -4
+maxY = 4
+Deltak =1
 Det = (2*Deltak)**2
 pi = 3.14159265359
 epsilion = 1*10**-9
@@ -25,15 +25,26 @@ FI =[[1,0,0,0,0,0],
      [4,0,0,-4,4,-4],
      [2,0,2,0,0,-4]]
 
+FI3 = [[1,0,0,0,0,0,0,0,0,0],
+       [-3,-1,0,0,0,4,0,0,0,0],
+       [-3,0,-1,0,0,4,0,0,0,0],
+       [-3,0,0,-1,0,0,4,0,0,0],
+       [2,2,0,0,-4,0,0,0,0,0],
+       [4,0,0,0,-4,-4,0,4,0,0],
+       [4,0,0,0,-4,0,-4,0,0,4],
+       [2,0,2,0,0,-4,0,0,0,0],
+       [4,0,0,0,0,-4,-4,0,4,0],
+       [2,0,0,2,0,0,-4,0,0,0]]
+
 #just apply any desired funksjon f.
 def functionf (x,y):
-  f =  1
+  f =  1+ x+3*x-5*y+7*x**2+11*y**2
   return f;
 
 #also any desired funksjon E.
-def energyf (x,y):
+def energyf (x,y,z):
   #E = x**2 + y**2;
-  E =  x**2+y**2
+  E =  4*x**2
   return E;
 
 # function creat k grid. triangel
@@ -49,25 +60,12 @@ def energyf (x,y):
 """
 def creatkGrid():
 
-  width = maxX - miniX
-  height = maxY - miniY
   #rotation grid was a nessery step in testing. but not any more. 
-  rotation = 0.0
-  nx = int(float(width/Deltak)) 
-  ny = int(float(height/Deltak)) 
+  rotation = 0.00
 
-
-  kGrid = [[0 for i in xrange(ny +1)] for i in xrange(nx +1)]
-  EGrid = [[0 for i in xrange(ny +1)] for i in xrange(nx +1)]
-  fGrid = [[0 for i in xrange(ny +1)] for i in xrange(nx +1)]
-
-  for ix in range(0,nx + 1):
-    for iy in range(0,ny + 1):
-      x = (miniX + Deltak *ix) * np.cos(rotation) + -(miniY + Deltak*iy) * np.sin(rotation)  
-      y = (miniX + Deltak *ix) * np.sin(rotation) + (miniY + Deltak*iy) * np.cos(rotation)  
-      kGrid[ix][iy] = x , y
-      EGrid[ix][iy] = energyf (x,y)
-      fGrid[ix][iy] = functionf(x, y)
+  kGrid = [[0,0,0],[1,0,0],[0,1,0],[0,0,1]]
+  EGrid = [[energyf (KGrid[0])],[energyf (KGrid[1])],[energyf (KGrid[2])],[energyf (KGrid[3])]] 
+  fGrid = [[functionf (KGrid[0])],[functionf(KGrid[1])],[functionf(KGrid[2])],[functionf (KGrid[3])]]
 
   return kGrid, EGrid, fGrid;
 
@@ -94,7 +92,7 @@ def ABv(A,B,v):
 
 #ref (20 a) this is not necessary and not used function, since we used weight method for integration I = f(k)*w 
 #this was for function was for testing where intergration  I = pi*vi  
-def getConstantsAB(k):
+def getConstantsAB(k,corners):
   matriseA =[ [k[0][0],k[0][1],1],
               [k[1][0],k[1][1],1],
               [k[2][0],k[2][1],1]]
@@ -248,6 +246,7 @@ def getAfineConstat(q,k,A,B):
 
 """------------------------------------------Surface integration functions--------------------------------------------------------"""
 def elipse (e, q, corners,dx,dy,nx,ny):
+  print "reach"
   c = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
        dx[1] * corners[1][1] - dy[1]*corners[1][0],
        dx[2] * corners[2][1] - dy[2]*corners[2][0]]
@@ -751,7 +750,7 @@ def inTriangelStraight(c,p):
 """-------------------------------------------------------------------------------------------------------------------"""
 
 # Function returns the integral of I(E)for a surface " Ellipse, Hyperbola, Parabola, Stright line, Degenerate"
-def surfaces(e,k,E):
+def surfaces(e, corners,k,E):
   """
                   (x2,y2)
                   / \ 
@@ -761,7 +760,7 @@ def surfaces(e,k,E):
       (x0,y0) /_________\(x1,y1)
 
   """
-  A1,B1 = getConstantsAB(k)
+  A1,B1 = getConstantsAB(k,corners)
   k = [[0,0],
       [1,0],
       [0,1],
@@ -824,9 +823,9 @@ def surfaces(e,k,E):
   #print vn
   return vn
 
-def triangelIntegral(e, E, k, f):
+def triangelIntegral(e, E, k, f, corners):
 
-  v = surfaces(e,k,E)
+  v = surfaces(e, corners,k,E)
   sum = 0
   for i in range(0, 6):
     sum += f[i]*v[i]
@@ -837,29 +836,12 @@ def totalInegral():
   totalInegralSum = 0;
 
   kGrid ,EGrid, fGrid = creatkGrid()
-
-  numrows = len(kGrid)
-  numcols = len(kGrid)
-  sum = 0.0
-  #integrating over the  triangels
-  i = 0
-  for ix in range(0, len(kGrid) - 1, 2):
-    for iy in range (0, len(kGrid[ix]) - 1, 2): # q and p must be here 
-      i = i+1 
-      #summing over the odd triangel
-      E = [EGrid[ix][iy], EGrid[ix + 2][iy], EGrid[ix ][iy + 2], EGrid[ix + 1][iy], EGrid[ix + 1][iy + 1], EGrid[ix][iy + 1]]
-      k = [kGrid[ix][iy], kGrid[ix + 2][iy], kGrid[ix ][iy + 2], kGrid[ix + 1][iy], kGrid[ix + 1][iy + 1], kGrid[ix][iy + 1]]
-      f = [fGrid[ix][iy], fGrid[ix + 2][iy], fGrid[ix ][iy + 2], fGrid[ix + 1][iy], fGrid[ix + 1][iy + 1], fGrid[ix][iy + 1]]
-      print k
-      print E
-      sum += triangelIntegral(e,E,k,f)
-      print "lol ", sum
-
-      #summing over the partall triangel
-      E = [EGrid[ix + 2][iy +2], EGrid[ix][iy + 2],EGrid[ix + 2][iy], EGrid[ix + 1][iy + 2], EGrid[ix + 1][iy+1], EGrid[ix + 2][iy + 1]]
-      k = [kGrid[ix + 2][iy +2], kGrid[ix][iy + 2],kGrid[ix + 2][iy], kGrid[ix + 1][iy + 2], kGrid[ix + 1][iy+1], kGrid[ix + 2][iy + 1]]
-      f = [fGrid[ix + 2][iy +2], fGrid[ix][iy + 2],fGrid[ix + 2][iy], fGrid[ix + 1][iy + 2], fGrid[ix + 1][iy+1], fGrid[ix + 2][iy + 1]]
-      sum += triangelIntegral(e, E, k, f)
+  #summing over the odd triangel
+  E = EGrid
+  k = kGrid
+  f = FGrid
+  corners = [k[0], k[1], k[2], k[3]]
+  sum = triangelIntegral(e,E,k,f, corners)
   return sum
 
 print totalInegral()

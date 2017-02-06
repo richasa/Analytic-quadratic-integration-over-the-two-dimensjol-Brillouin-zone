@@ -6,25 +6,55 @@ the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))
 import numpy as np
 
 # testng the function
-e = 0.1
-miniX = -3
-maxX = 3
-miniY = -3
-maxY = 3
-Deltak = 0.1
+e = 1
+miniX = -2
+maxX = 2
+miniY = -2
+maxY = 2
+Deltak = 1
+Det = Deltak**2
+FI = [[1, 0, 0 ],
+      [-1, 1, 0],
+      [-1, 0, 1]]
+F = [[0,0],
+     [1,0],
+     [0,1]]
+cosT = np.cos(1)
+sinT = np.sin(1)
 
+R = [[cosT,-sinT],
+     [sinT,cosT]]
+F = np.dot(F,R)
+FF = [[1,0,0],
+       [1,F[1][0],F[1][1]],
+       [1,F[2][0],F[2][1]]] 
+print F
+
+FI  =  np.linalg.inv(FF)
+#print nF
+#F =  [[0.0, 0.0],
+#     [0.5, np.sqrt(3)/2],
+#     [-np.sqrt(3)/2, 5]]
+
+#Fx = [[1,0.0, 0.0],
+#     [1,0.5, np.sqrt(3)/2],
+#     [1,-np.sqrt(3)/2, 5]]
+#FI = np.linalg.inv(Fx)
+#Det = Deltak**2* np.linalg.det(Fx)
 #enter the function f here 
 def functionf (x,y):
   #f = (x**2) + y**2;
-  f = 1
+  #f = 1+x+y+y**2 + y*x+x**2
   #f = y**2
   #f = 1
   #f = x*y
   #f = y #look tom
-  #f =1+ x
-  #f = x*y
-  #f = y
-  #f = 1+ x
+  #f =1+ y + 2*x +0.5*x**2 +0.5*y**2+ x*y
+  f =  1+x**2+y**2+x+y+x*y
+  #if x >0:
+  #   f =   x#**2+y**2+x+y+x*y
+  #else:
+  #  f= y
   return f;
 
 #enter the function E here 
@@ -52,9 +82,9 @@ def energyf (x,y):
   #E =0.2 + -2*y  + -2*x+2*y**2
   #E =  -0.25 +x*y
   #E = 2*x+0.2*y+ y**2
-  #E =  x*y + 0.5*x**2 + 0.5*y**2 + x
-  E =x**2 + y**2 + 0.01
-  #E = 0.1*y**2+ x**2 
+  #E =  x+y
+  #E = x
+  E = x+2*x**2+2*y**2 +2*y
   return E;
 
 
@@ -74,7 +104,7 @@ def creatkGrid():
   width = maxX - miniX
   height = maxY - miniY
   #only to avoid triangel dx and dy = 0! this depends on the grid we chose 
-  rotation = 0
+  rotation = 0.1
  
   nx = int(float(width/Deltak)) 
   ny = int(float(height/Deltak)) 
@@ -91,8 +121,14 @@ def creatkGrid():
       kGrid[ix][iy] = x , y
       EGrid[ix][iy] = energyf (x,y)
       fGrid[ix][iy] = functionf(x, y)
-
-  return kGrid, EGrid, fGrid; 
+  return kGrid, EGrid, fGrid;
+#transform to an afineTriangel ref my paper()
+def ABv(A,B,v):
+  vn = [0,0,0]
+  vn[0] = v[0]
+  vn[1] = A[0][0]*v[1] + A[0][1]*v[2] + B[0]*v[0]
+  vn[2] = A[1][0]*v[1] + A[1][1]*v[2] + B[1]*v[0]
+  return vn
 
 # Function sortE return E1<E2<E3
 def sortE(E, f, k):
@@ -105,6 +141,10 @@ def sortE(E, f, k):
             E[j], E[j-1] = E[j-1], E[j]
             j -= 1
   return E, f, k;
+def getAfineConstat(q,p,k,A,B):
+
+
+	return
 
 def getConstantsPi(E,k,f):
   # p0 + p1 x0 + p2 y0 = f0
@@ -177,11 +217,13 @@ def determinantJacobian2(e, E, k):
 
 #ref(19)
 def triangelIntegral(e,E,k,f):
-
+  D = [[1,k[0][0],k[0][1]],
+       [1,k[1][0],k[1][1]],
+       [1,k[2][0],k[2][1]]]
   E, f, k = sortE(E, f, k);
-  p = getConstantsPi(E,k,f)
+  k = F
+  det =  Det
 
-  #q = getConstantsEi(E,k) #is not needed for linear intorpolation. 
   if E[0] <= e and e < E[1]:
     
     kt, ku = IEIntegral1(e, E, k);
@@ -194,9 +236,15 @@ def triangelIntegral(e,E,k,f):
     kt = 0,0
     ku = 0,0
     Jacobian = 0
-  
-  #sum = p0*v0 + p1 *v1+ p2*v2  
-  sum = p[0] * Jacobian + p[1]*Jacobian*(kt[0]+ 0.5*ku[0])+ p[2] *Jacobian * (kt[1] + 0.5 * ku[1]) ;
+
+  v = [0,0,0]
+  v[0] =  Jacobian 
+  v[1] =  Jacobian*(kt[0]+ 0.5*ku[0])
+  v[2] =  Jacobian * (kt[1] + 0.5 * ku[1]) 
+  vn = np.dot(v,FI)
+
+  sum = f[0] * vn[0] + f[1]*vn[1]+ f[2] *vn[2]
+  sum = sum * det
   return sum;
 
 def totalInegral():
@@ -217,9 +265,9 @@ def totalInegral():
       f = [fGrid[ix][iy], fGrid[ix + 1][iy], fGrid[ix][iy + 1]]
       sum += triangelIntegral(e,E,k,f)
       #summing over the partall triangel
-      E = [EGrid[ix][iy + 1], EGrid[ix + 1][iy + 1], EGrid[ix + 1][iy]]
-      k = [kGrid[ix][iy + 1], kGrid[ix + 1][iy + 1], kGrid[ix + 1][iy]]
-      f = [fGrid[ix][iy + 1], fGrid[ix + 1][iy + 1], fGrid[ix + 1][iy]]
+      E = [EGrid[ix + 1][iy + 1], EGrid[ix + 1][iy], EGrid[ix ][iy + 1]]
+      k = [kGrid[ix + 1][iy + 1], kGrid[ix + 1][iy], kGrid[ix ][iy + 1]]
+      f = [fGrid[ix + 1][iy + 1], fGrid[ix + 1][iy], fGrid[ix ][iy + 1]]
       sum += triangelIntegral(e,E,k,f)
   return sum
 

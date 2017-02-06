@@ -1,60 +1,37 @@
 """
-Analytic linear interpolation "G wiesenekker,G received 1987" 2D test
+Analytic linear interpolation 3D "G wiesenekker,G received 24 Sptember 1990 3D test
 dimensionaless k vekort
 the answer given in (1/2pi)^2 *(2m / hbar^2)^n where  n = s +1. fn(k^(2s))  
 """
 import numpy as np
 
 # testng the function
-e = 0.1
-miniX = -3
-maxX = 3
-miniY = -3
-maxY = 3
+e = 1
+miniX = -1
+maxX = 1
+miniY = -1
+maxY = 1
+miniZ = -1
+maxZ = 1
+
 Deltak = 0.1
 
 #enter the function f here 
-def functionf (x,y):
+def functionf (x,y,z):
   #f = (x**2) + y**2;
-  f = 1
-  #f = y**2
   #f = 1
-  #f = x*y
-  #f = y #look tom
-  #f =1+ x
-  #f = x*y
-  #f = y
-  #f = 1+ x
+  f = 1+x+y+y**2 + y*x+x**2
   return f;
 
 #enter the function E here 
-def energyf (x,y):
+def energyf (x,y,z):
   #E = x**2 + y**2;
-  #E = 2+ x*y
+  E = 2+ x*y
   #E = 2*y + x**2
   #E =  x**2
   #E =  1 + 2*x
   #E = 0.9 + x**2
   #E = x**3
-  #E = x +y
-  #E = 2*x + y +0.5*x**2-0.5*y**2+ x*y
-  #E = 0.5*x**2+0.7*y**2+ x*y 
-  #E =  x*y + 0.5*x**2 + 0.5*y**2 + x
-  #E = x*y +x**2+y**2
-  #E = 2*x*y +x**2 +y**2
-  #E = 2*x*y +x**2 -y**2
-  #E  = -2*x*y -x**2 - y**2 + 2
-  #E = 1 + 4*x + x**2
-  #E = 1 + 4*x + x**2 + y**2
-  #E =  0.3+ 2*x+ x**2 #look tom
-  #E = 0.5*y**2 + 0.5*y
-  #E = 0.5*x + 2*x**2 + -5*y**2
-  #E =0.2 + -2*y  + -2*x+2*y**2
-  #E =  -0.25 +x*y
-  #E = 2*x+0.2*y+ y**2
-  #E =  x*y + 0.5*x**2 + 0.5*y**2 + x
-  E =x**2 + y**2 + 0.01
-  #E = 0.1*y**2+ x**2 
   return E;
 
 
@@ -73,24 +50,27 @@ def creatkGrid():
 
   width = maxX - miniX
   height = maxY - miniY
+  length = maxZ - miniZ
   #only to avoid triangel dx and dy = 0! this depends on the grid we chose 
-  rotation = 0
+  rotation = 0.5
  
   nx = int(float(width/Deltak)) 
   ny = int(float(height/Deltak)) 
+  nz = int(float(length/Deltak))
 
+  kGrid = [[[0 for i in xrange(ny +1)] for i in xrange(nx +1)]for i in xrange(nz +1)]
+  EGrid = [[[0 for i in xrange(ny +1)] for i in xrange(nx +1)]for i in xrange(nz +1)]
+  fGrid = [[[0 for i in xrange(ny +1)] for i in xrange(nx +1)]for i in xrange(nz +1)]
 
-  kGrid = [[0 for i in xrange(ny +1)] for i in xrange(nx +1)]
-  EGrid = [[0 for i in xrange(ny +1)] for i in xrange(nx +1)]
-  fGrid = [[0 for i in xrange(ny +1)] for i in xrange(nx +1)]
-
-  for ix in range(0,nx + 1):
-    for iy in range(0,ny + 1):
-      x = (miniX + Deltak *ix) * np.cos(rotation) + -(miniY + Deltak*iy) * np.sin(rotation)  
-      y = (miniX + Deltak *ix) * np.sin(rotation) + (miniY + Deltak*iy) * np.cos(rotation)  
-      kGrid[ix][iy] = x , y
-      EGrid[ix][iy] = energyf (x,y)
-      fGrid[ix][iy] = functionf(x, y)
+  for ix in range(0, nx + 1):
+    for iy in range(0, ny + 1):
+    	for iz in range(0, nz + 1):
+           x = (miniX + Deltak *ix) * np.cos(rotation) + -(miniY + Deltak*iy) * np.sin(rotation)  
+           y = (miniX + Deltak *ix) * np.sin(rotation) + (miniY + Deltak*iy) * np.cos(rotation) 
+           z = iz 
+           kGrid[ix][iy] = x , y, z
+           EGrid[ix][iy] = energyf (x, y, z)
+           fGrid[ix][iy] = functionf(x, y, z)
 
   return kGrid, EGrid, fGrid; 
 
@@ -107,31 +87,38 @@ def sortE(E, f, k):
   return E, f, k;
 
 def getConstantsPi(E,k,f):
-  # p0 + p1 x0 + p2 y0 = f0
-  # p0 + p1 x1 + p2 y1 = f1
-  # p0 + p1 x2 + p2 y2 = f1
+  # p0 + p1 x0 + p2 y0 + p3 z0 = f0
+  # p0 + p1 x1 + p2 y1 + p3 z1 = f1
+  # p0 + p1 x2 + p2 y2 + p3 z2 = f2
+  # p0 + p1 x3 + p2 y3 + p3 z3 = f3
 
-  matriseA =[ [1, k[0][0], k[0][1]],
-              [1, k[1][0], k[1][1]],
-              [1, k[2][0], k[2][1]]]
+  matriseA =[ [1, k[0][0], k[0][1],k[0][2]],
+              [1, k[1][0], k[1][1],k[1][2]],
+              [1, k[2][0], k[2][1],k[2][2]],
+              [1, k[3][0], k[3][1],k[3][2]]]
   matriseB =[f[0],
              f[1],
-             f[2]]
+             f[2],
+             f[3]]
 
   p = np.linalg.solve(matriseA, matriseB)
   return p;
 #ref -(6b)
 def getConstantsEi(E,k):
-  # q0 + q1 x0 + q2 y0 = E0
-  # q0 + q1 x1 + q2 y1 = E1
-  # q0 + q1 x2 + q2 y2 = E1
+  # q0 + q1 x0 + q2 y0 + q3 z0= E0
+  # q0 + q1 x1 + q2 y1 + q3 z2= E1
+  # q0 + q1 x2 + q2 y2 + q3 z2= E2
+  # q0 + q1 x2 + q2 y2 + q3 z3= E3
 
-  matriseA =[ [1, k[0][0], k[0][1]],
-              [1, k[1][0], k[1][1]],
-              [1, k[2][0], k[2][1]]]
+  matriseA =[ [1, k[0][0], k[0][1],k[0][2]],
+              [1, k[1][0], k[1][1],k[1][2]],
+              [1, k[2][0], k[2][1],k[2][2]],
+              [1, k[3][0], k[3][1],k[3][2]]]
+
   matriseB =[E[0],
              E[1],
-             E[2]]
+             E[2],
+             E[3]]
   q = np.linalg.solve(matriseA, matriseB)
   return q;
 
@@ -139,6 +126,7 @@ def getConstantsEi(E,k):
 def IEIntegral1(e, E, k):
   #kt = k[0] + (e - E[0])/(E[2]-E[0]) * (k[2] - k[0]) 
   kt = np.add(k[0], np.multiply((e - E[0])/(E[2]-E[0]), (np.subtract(k[2],k[0])))) 
+
   #ku = (e - E[0])/(E[1]-E[0]) * (k[1]-k[0]). - (e - E[0]) / (E[2]-E[0]) * (k[2]- k[0]) 
   ku = np.subtract(np.multiply((e-E[0])/(E[1]-E[0]),(np.subtract(k[1],k[0]))), np.multiply((e-E[0])/(E[2]-E[0]) ,np.subtract(k[2],k[0])) )
   # Function returns the integral of I(E) for E2<e<E3
@@ -176,17 +164,18 @@ def determinantJacobian2(e, E, k):
   return (E[2] - e)/((E[2]-E[1])*(E[2]-E[0])) * j;
 
 #ref(19)
-def triangelIntegral(e,E,k,f):
+def tetraIntegral(e,E,k,f):
 
   E, f, k = sortE(E, f, k);
   p = getConstantsPi(E,k,f)
 
   #q = getConstantsEi(E,k) #is not needed for linear intorpolation. 
-  if E[0] <= e and e < E[1]:
+
+  if E[0] <= e and e <= E[1]:
     
     kt, ku = IEIntegral1(e, E, k);
     Jacobian = determinantJacobian1(e,E,k)
-  elif E[1] <= e and e < E[2]:
+  elif E[1] <= e and e <= E[2]:
 
     kt, ku = IEIntegral2(e, E, k);
     Jacobian = determinantJacobian2(e,E,k)   
@@ -210,17 +199,17 @@ def totalInegral():
   #integrating over the  triangels
   for ix in range(0, len(kGrid) - 1):
     for iy in range (0, len(kGrid[ix]) - 1): # q and p must be here 
-
-      #summing over the odd triangel
-      E = [EGrid[ix][iy], EGrid[ix + 1][iy], EGrid[ix][iy + 1]]
-      k = [kGrid[ix][iy], kGrid[ix + 1][iy], kGrid[ix][iy + 1]]
-      f = [fGrid[ix][iy], fGrid[ix + 1][iy], fGrid[ix][iy + 1]]
-      sum += triangelIntegral(e,E,k,f)
-      #summing over the partall triangel
-      E = [EGrid[ix][iy + 1], EGrid[ix + 1][iy + 1], EGrid[ix + 1][iy]]
-      k = [kGrid[ix][iy + 1], kGrid[ix + 1][iy + 1], kGrid[ix + 1][iy]]
-      f = [fGrid[ix][iy + 1], fGrid[ix + 1][iy + 1], fGrid[ix + 1][iy]]
-      sum += triangelIntegral(e,E,k,f)
+      for iz in range (0, len(kGrid[iy]) - 1): # q and p must be here 
+        #summing over the odd triangel
+        E = [EGrid[ix][iy], EGrid[ix + 1][iy], EGrid[ix][iy + 1]]
+        k = [kGrid[ix][iy], kGrid[ix + 1][iy], kGrid[ix][iy + 1]]
+        f = [fGrid[ix][iy], fGrid[ix + 1][iy], fGrid[ix][iy + 1]]
+        sum += triangelIntegral(e,E,k,f)
+        #summing over the partall triangel
+        E = [EGrid[ix][iy + 1], EGrid[ix + 1][iy + 1], EGrid[ix + 1][iy]]
+        k = [kGrid[ix][iy + 1], kGrid[ix + 1][iy + 1], kGrid[ix + 1][iy]]
+        f = [fGrid[ix][iy + 1], fGrid[ix + 1][iy + 1], fGrid[ix + 1][iy]]
+        sum += triangelIntegral(e,E,k,f)
   return sum
 
 print totalInegral()
