@@ -2,10 +2,10 @@
 Analytic qudtratic interpolation over the three-dimensional Brillouin zone "G wiesenekker,G received 1990" 
 Redistributions of source code must retain the above copyright notice. 
 """
-
 import numpy as np
 import math
 import twoD
+from scipy import integrate
 
 def energyf (k):
   x = k[0]
@@ -126,11 +126,21 @@ q = getConstantsEi(E,k)
 
 #prdouce the z point and call the twoD function
 #print  triangelIntegral()
-k2,E2 = make2Dk(0.5,q)
-
-k2 = np.around(k2, 10)
-E2 = np.around(E2, 10)
-f = [1,1,1,1,1,1]
 e = 0.1
-print k2
-print twoD.triangelIntegral(e,E2,k2,f)
+f = [1,1,1,1,1,1]
+def triangelIntegralInz(z):
+  k2,E2 = make2Dk(z,q)
+  #k2 = np.around(k2, 10)
+  #E2 = np.around(E2, 10)
+
+  return twoD.triangelIntegral(e,E2,k2,f);
+
+##just testing ................
+#k2,E2 = make2Dk( 0.14917311663,q)
+#k2 = np.around(k2, 10)
+#E2 = np.around(E2, 10)
+#print twoD.triangelIntegral(e,E2,k2,f)
+#print twoD.triangelIntegral(e,E2,k2,f)
+
+function2d = lambda z: triangelIntegralInz(z)
+print integrate.quad(function2d, 0, 0.3)

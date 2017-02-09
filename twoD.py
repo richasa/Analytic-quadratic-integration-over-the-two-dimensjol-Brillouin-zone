@@ -248,11 +248,11 @@ def getAfineConstat(q,k,A,B):
 
 """------------------------------------------Surface integration functions--------------------------------------------------------"""
 def elipse (e, q, corners,dx,dy,nx,ny):
-  print "reach", q[5]
   c = [dx[0] * corners[0][1] - dy[0]*corners[0][0],
        dx[1] * corners[1][1] - dy[1]*corners[1][0],
        dx[2] * corners[2][1] - dy[2]*corners[2][0]]
-  #print c
+  if (e-q[0]) < 0:
+    return [0,0,0,0,0,0]
   constantA = ((e - q[0]) / q[3]) **0.5
   constantB =  ((e - q[0]) / q[5]) **0.5
   #ref 25 my papper.   
